@@ -1,11 +1,6 @@
-import ChatWindow from "@/components/ChatWindow";
+// app/page.tsx
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="h-full flex items-center justify-center">
-      <div className="w-full h-full bg-white/80 rounded-2xl shadow-lg p-6">
-        <ChatWindow />
-      </div>
-    </div>
-  );
+  redirect("/auth/login");
 }
