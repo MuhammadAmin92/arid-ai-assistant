@@ -18,24 +18,71 @@ export default function AuthCard({ mode = "login" }: AuthCardProps) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (!email || !password || (mode === "signup" && !name)) {
-      alert("Please fill all required fields");
+  if (!email || !password || (mode === "signup" && !name)) {
+    alert("Please fill all required fields");
+    return;
+  }
+
+  if (mode === "signup") {
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Signup failed");
+        return;
+      }
+
+      alert("Account created successfully");
+      router.push("/auth/login");
+    } catch (error) {
+      alert("Something went wrong");
+      console.error(error);
+    }
+  } else {
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Login failed");
       return;
     }
 
-    if (mode === "signup") {
-      // Future: yahan real signup API call ho sakti hai
-      alert("Account created successfully (demo). Redirecting to login…");
-      router.push("/auth/login");
-    } else {
-      // Login success (demo) → cookie set + chat page
-      document.cookie = "logged-in=true; path=/; max-age=86400"; // 1 din
-      router.push("/main/chat");
-    }
-  };
+    document.cookie = "logged-in=true; path=/; max-age=86400";
+    router.push("/main/chat");
+  } catch (error) {
+    alert("Something went wrong");
+    console.error(error);
+  }
+}
+
+};
+
 
   return (
     <div className="md:flex w-full max-w-4xl bg-white rounded-3xl overflow-hidden shadow-xl">
@@ -123,7 +170,7 @@ export default function AuthCard({ mode = "login" }: AuthCardProps) {
             <>
               Don’t have an account?{" "}
               <Link href="/auth/signup" className="text-green-600 font-semibold">
-                Create one
+                Create New Account
               </Link>
             </>
           ) : (
